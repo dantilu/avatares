@@ -127,7 +127,6 @@ class UserRead:
                  str(self.number_of_tweets) + ',' + str(self.number_of_hashtags) + \
                  str(self.number_of_urls) + ',' + str(self.number_of_mentions) \
                  + ',' + str(self.last_24_hours_tweet) + '\n'
-        linea = str(self.__dict__)
         return linea
 
     #Con esta función consigo sacar todos los nombres de las variables que se utilizan en la clase,
