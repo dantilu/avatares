@@ -1,6 +1,1 @@
-Cristiano 155659213 9 9 0 1 1.33405710015e-06 916 665 0.7259825327516.65 11.3 3188 2899 21 1
-dgl1987 963171395701264385 7 3 4 1 31.0 32 26 0.81253.25 10.9 8 13 7 0
-policia 23791197 7 7 0 1 0.0 1918 1096 0.57142857142910.96 10.8 25150 5794 15 9
-marianorajoy 343447873 12 12 0 1 0.00838435519973 2024 1007 0.49752964426910.07 12.7 24837 4271 50 1
-RAEinforma 350411337 10 10 0 1 0.000131989667095 1522 810 0.5321944809468.1 12.8 171805 9554 98 100
-digitaljose01 718921381359067140 13 11 2 1 2.84357541899 1797 1140 0.63439065108511.4 11.9 1253 2654 99 10
+Cristiano,user_timeline,more_popular_tweet_likes,name_length,number_of_mentions,average_number_words_per_tweet,number_of_tweets,more_popular_retweet_likes,creation_date,more_popular_tweet,number_of_hashtags,percent_negative_tweets,average_lenth_from_tweets,id,percent_positive_tweets,verified,more_popular_retweet_length,percent_neutral_tweets,followers_count,location,default_profile_image,last_24_hours_tweet,desviacion_tipica_average_tweet_time,profile,more_popular_retweet,friends_count,creation_content_sources,smog_index,number_of_urls,name_numbers_amount,default_profile_url,average_time_between_tweets,total_number_of_words,ratio_friends_followers,name,more_popular_tweet_length,lexical_diversity,param_count,default_profile,total_unique_words,name_letters_amount
