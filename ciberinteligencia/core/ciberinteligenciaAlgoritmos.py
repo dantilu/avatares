@@ -33,6 +33,7 @@ class UserRead:
         self.profile = None
         self.user_timeline = None
         self.name = None
+
         self.name_length = None
         self.name_letters_amount = 0
         self.name_numbers_amount = 0
@@ -114,18 +115,29 @@ class UserRead:
         self.percent_neutral_tweets = 0
         self.average_lenth_from_tweets = 0
 
+    #Quizas esto sea mejor hacerlo pasando por un bucle, ya que con las funciones de utility de algoritmos podemos
+    #pasar aquellos valores que no sean numericos a valores que nos sirvan
     def train1(self):
-        linea = str(self.id) + ' ' + str(self.name_length) + ' ' + str(self.name_letters_amount)
-        linea += ' ' + str(self.name_numbers_amount) + ' ' + \
+        linea = str(self.id) + ',' + str(self.name_length) + ',' + str(self.name_letters_amount)
+        linea += ',' + str(self.name_numbers_amount) + ',' + \
                  '1' if self.location is not None else '0'
-        linea += ' ' + str(self.ratio_friends_followers) + ' ' + str(self.total_number_of_words)
-        linea += ' ' + str(self.total_unique_words) + ' ' + str(self.lexical_diversity) + \
-                 str(self.average_number_words_per_tweet) + ' ' + str(self.smog_index) + ' ' + \
-                 str(self.number_of_tweets) + ' ' + str(self.number_of_hashtags) + \
-                 str(self.number_of_urls) + ' ' + str(self.number_of_mentions) \
-                 + ' ' + str(self.last_24_hours_tweet) + '\n'
-
+        linea += ',' + str(self.ratio_friends_followers) + ',' + str(self.total_number_of_words)
+        linea += ',' + str(self.total_unique_words) + ',' + str(self.lexical_diversity) + \
+                 str(self.average_number_words_per_tweet) + ',' + str(self.smog_index) + ',' + \
+                 str(self.number_of_tweets) + ',' + str(self.number_of_hashtags) + \
+                 str(self.number_of_urls) + ',' + str(self.number_of_mentions) \
+                 + ',' + str(self.last_24_hours_tweet) + '\n'
         return linea
+
+    #Con esta función consigo sacar todos los nombres de las variables que se utilizan en la clase,
+    #Estaría bien quedarnos solo con los que sirven para algo.
+    def parameterNames(self):
+        allParams = ''
+        for param in self.__dict__:
+            allParams += str(param) + ','
+
+        allParams = allParams[:len(allParams)-1]
+        print allParams
 
 
 
@@ -165,7 +177,7 @@ def filter_profiles(input_filename, output_filename, limitador,  flag_hashtag, f
                 if profile_based_characteristics(user):
                     if content_based_characteristics(user, limitador,  flag_hashtag, flag_url, flag_mention):
                         if content_based_characteristics_upgraded(user, limitador):
-                            f_out.write(user.name + ' ' + user.train1())
+                            f_out.write(user.name + ',' + user.train1())
                             print "Parametros del usuario {} : {}".format(user.name, user.train1())
         f_in.close()
         f_out.close()
@@ -431,6 +443,7 @@ try:
     # Por el contrario, si le pasamos false calcula el numero de tweets que tienen algun hashtag
     # Hay que tener en cuenta que las respuestas a un tweet tambien las considera como ULR's porque son enlaces al propio Tweeter
     filter_profiles(args.inputFile, args.outputFile, 100, True, True, True)
+
 
 
 except Exception as e:  # catch all those ugly errors
