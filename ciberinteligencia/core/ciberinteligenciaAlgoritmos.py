@@ -129,18 +129,6 @@ class UserRead:
                  + ',' + str(self.last_24_hours_tweet) + '\n'
         return linea
 
-    #Con esta función consigo sacar todos los nombres de las variables que se utilizan en la clase,
-    #Estaría bien quedarnos solo con los que sirven para algo.
-    def parameterNames(self):
-        allParams = ''
-        for param in self.__dict__:
-            allParams += str(param) + ','
-
-        allParams = allParams[:len(allParams)-1]
-        print allParams
-
-
-
 def login():
     auth = tweepy.OAuthHandler(decrypt_with_aes(cipher_for_decryption, CONSUMER_KEY),
                                decrypt_with_aes(cipher_for_decryption, CONSUMER_SECRET))
