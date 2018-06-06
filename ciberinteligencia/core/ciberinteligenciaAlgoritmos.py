@@ -29,25 +29,23 @@ class UserRead:
     #Solo se definen campos comunes como variables aqui, lo demas va en los diferentes métodos
     #Inicializamos todas las variables que vayamos a usar en la clase
     def __init__(self):
-        self.param_count = 0
         self.profile = None
         self.user_timeline = None
         self.name = None
+        self.friends_count = 0
+        self.followers_count = 0
 
+        # Useful params for training
+        self.a_id = None
         self.name_length = None
         self.name_letters_amount = 0
         self.name_numbers_amount = 0
-        self.id = None
         self.location = None
-        self.friends_count = 0
-        self.followers_count = 0
         self.ratio_friends_followers = 0
         self.verified = None
         self.default_profile_image = None
-        self.default_profile_url = None
         self.default_profile = None
         self.creation_date = None
-
         self.total_number_of_words = None
         self.total_unique_words = None
         self.lexical_diversity = None
@@ -59,10 +57,6 @@ class UserRead:
         self.number_of_mentions = None
         self.last_24_hours_tweet = None
         self.average_time_between_tweets = None
-        self.more_popular_tweet = None
-        self.more_popular_tweet_length = None
-        self.more_popular_retweet = None
-        self.more_popular_retweet_length = None
         self.desviacion_tipica_average_tweet_time = None
         self.creation_content_sources = None
         self.percent_positive_tweets = 0
@@ -74,25 +68,23 @@ class UserRead:
         self.profile = api_profile
 
     def clean_user(self):
-        self.param_count = 0
         self.profile = None
         self.user_timeline = None
-
         self.name = None
+        self.friends_count = 0
+        self.followers_count = 0
+
+        #Useful params for training
+        self.a_id = None
         self.name_length = None
         self.name_letters_amount = 0
         self.name_numbers_amount = 0
-        self.id = None
         self.location = None
-        self.friends_count = 0
-        self.followers_count = 0
         self.ratio_friends_followers = 0
         self.verified = None
         self.default_profile_image = None
-        self.default_profile_url = None
         self.default_profile = None
         self.creation_date = None
-
         self.total_number_of_words = None
         self.total_unique_words = None
         self.lexical_diversity = None
@@ -104,10 +96,6 @@ class UserRead:
         self.number_of_mentions = None
         self.last_24_hours_tweet = None
         self.average_time_between_tweets = None
-        self.more_popular_tweet = None
-        self.more_popular_tweet_length = None
-        self.more_popular_retweet = None
-        self.more_popular_retweet_length = None
         self.desviacion_tipica_average_tweet_time = None
         self.creation_content_sources = None
         self.percent_positive_tweets = 0
@@ -118,7 +106,7 @@ class UserRead:
     #Quizas esto sea mejor hacerlo pasando por un bucle, ya que con las funciones de utility de algoritmos podemos
     #pasar aquellos valores que no sean numericos a valores que nos sirvan
     def train1(self):
-        linea = str(self.id) + ',' + str(self.name_length) + ',' + str(self.name_letters_amount)
+        linea = str(self.a_id) + ',' + str(self.name_length) + ',' + str(self.name_letters_amount)
         linea += ',' + str(self.name_numbers_amount) + ',' + \
                  '1' if self.location is not None else '0'
         linea += ',' + str(self.ratio_friends_followers) + ',' + str(self.total_number_of_words)
@@ -129,6 +117,30 @@ class UserRead:
                  + ',' + str(self.last_24_hours_tweet) + '\n'
         return linea
 
+    def paramline(self):
+        try:
+            params = self.__dict__
+            values = ''
+            params2 = (param for param in sorted(list(params.keys())) if param not in ['profile','user_timeline','name','friends_count','followers_count'])
+            for param in params2:
+                values += str(params[param]) + ','
+            values = values[:len(values)-1] + '\n'
+            return values
+        except Exception as ex:
+            print 'Fallo: {}'.format(ex)
+
+
+    #Generamos la primera linea que contiene el nombre de todas las variables que vamos a utilizar
+    def generateFirstLine(self):
+        objectparams = self.__dict__
+        firstLine = ''
+        paramNames = (param for param in sorted(list(objectparams.keys())) if
+                   param not in ['profile', 'user_timeline', 'name', 'friends_count', 'followers_count'])
+        for name in paramNames:
+            firstLine += str(name) + ','
+
+        return firstLine[:len(firstLine)-1] + '\n'
+
 def login():
     auth = tweepy.OAuthHandler(decrypt_with_aes(cipher_for_decryption, CONSUMER_KEY),
                                decrypt_with_aes(cipher_for_decryption, CONSUMER_SECRET))
@@ -136,6 +148,9 @@ def login():
                           decrypt_with_aes(cipher_for_decryption, ACCESS_TOKEN_SECRET))
 
     return tweepy.API(auth)
+
+
+
 
 
 def check_profile(profile, usuario):
@@ -156,17 +171,18 @@ def filter_profiles(input_filename, output_filename, limitador,  flag_hashtag, f
     try:
         f_in = open(input_filename, "r")
         f_out = open(output_filename, "w")
-
+        user = UserRead()
+        f_out.write(user.generateFirstLine())
         #Procesamos todas las lineas del fichero de entrada, comprobando previamente que el perfil exista, en caso contrario saltaremos al siguiente
         for i in f_in.readlines():
             # El perfil analizado no existe
-            user = UserRead()
             if check_profile(i, user):
                 if profile_based_characteristics(user):
                     if content_based_characteristics(user, limitador,  flag_hashtag, flag_url, flag_mention):
                         if content_based_characteristics_upgraded(user, limitador):
-                            f_out.write(user.name + ',' + user.train1())
+                            f_out.write(user.paramline())
                             print "Parametros del usuario {} : {}".format(user.name, user.train1())
+                            user.clean_user()
         f_in.close()
         f_out.close()
         return
@@ -192,8 +208,11 @@ def profile_based_characteristics(usuario):
             usuario.name_numbers_amount = len(numeric_chars.group())
         else:
             usuario.name_numbers_amount = 0
-        usuario.id = user.id_str
-        usuario.location = user.location
+        usuario.a_id = user.id_str
+        if user.location is not None:
+            usuario.location = True
+        else:
+            usuario.location = False
         usuario.friends_count = user.friends_count
         usuario.followers_count = user.followers_count
 
@@ -207,7 +226,6 @@ def profile_based_characteristics(usuario):
                 usuario.default_profile_image = True
             else:
                 usuario.default_profile_image = False
-                usuario.default_profile_url = user.profile_image_url
 
         # Si el perfil esta por defecto es probable que el usuario sea un candidato a bot
         if user.default_profile:
@@ -351,21 +369,15 @@ def content_based_characteristics_upgraded(usuario, limitador):
         fav = data[data.Likes == fav_max].index[0]
         rt = data[data.RTs == rt_max].index[0]
 
-        usuario.more_popular_tweet = data['Tweets'][fav]
-        usuario.more_popular_tweet_likes = fav_max
-        usuario.more_popular_tweet_length = data['len'][fav]
-
-        usuario.more_popular_retweet = data['Tweets'][rt]
-        usuario.more_popular_retweet_likes = rt_max
-        usuario.more_popular_retweet_length = data['len'][rt]
-
         usuario.desviacion_tipica_average_tweet_time = np.std(data['DateTimestamp'])
 
         # We obtain all possible sources:
-        usuario.creation_content_sources = []
+        usuario.creation_content_sources = 0
+        user_sources = []
         for source in data['Source']:
-            if source not in usuario.creation_content_sources:
-                usuario.creation_content_sources.append(source)
+            if source not in user_sources:
+                user_sources.append(source)
+                usuario.creation_content_sources += 1
 
         pos_tweets = [tweet for index, tweet in enumerate(data['Tweets']) if data['SA'][index] > 0]
         neu_tweets = [tweet for index, tweet in enumerate(data['Tweets']) if data['SA'][index] == 0]
