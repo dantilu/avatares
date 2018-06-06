@@ -1,6 +1,6 @@
 from sklearn.externals import joblib
 import pandas as pd
-from sklearn.metrics import accuracy_score, recall_score, f1_score, precision_score, classification_report
+from sklearn import metrics
 
 #Global, con los nombres de las clases en las que clasificamos
 targetNames = ['Humano', 'Bot']
@@ -20,12 +20,12 @@ def prepareDataset(csvFile, indexCol):
     return data
 
 #Esta funcion devuelve una tabla imprimible con los valores de precision, recall y F1 del algoritmo
-def calculeMetrics(trueValues, predictedValues):
+def calculeClasifficationReport(trueValues, predictedValues):
     #accurancy = accuracy_score(trueValues, predictedValues)
     #recall = recall_score(trueValues, predictedValues)
     #f1 = f1_score(trueValues, predictedValues)
     #precision  = precision_score(trueValues, predictedValues)
-    return classification_report(trueValues, predictedValues, target_names=targetNames)
+    return metrics.classification_report(trueValues, predictedValues, target_names=targetNames)
 
 #Funcion que genera el fichero donde se almacena el modelo para recuperarlo en caso de que sea necesario
 def makeItPersistent(model, fileName):
@@ -40,3 +40,27 @@ def loadModel(fileName):
     path = 'models/' + fileName
     model = joblib.load(path)
     return model
+
+#Funcion para el calculo de Fbeta, dependiendo de lo que queramos
+def calcFBeta(trueValues, predictedValues,beta):
+    Fbeta = metrics.fbeta_score(trueValues, predictedValues, beta)
+    return Fbeta
+
+
+#Funcion que evalua de forma bastante arcaica como esta el modelo en funcion de los errores que se han cometido
+#en la clasificacion tanto en la fase de entrenamiento como en la fase de ejecucion
+def howIsTheFit(trueValuesFit, predictedValuesFit, predictedValues, trueValues, beta):
+    errorOnFit = metrics.fbeta_score(trueValuesFit, predictedValuesFit, beta)
+    errorOnExec = metrics.fbeta_score(trueValues, predictedValues, beta)
+    if errorOnFit < errorOnExec:
+        if errorOnExec-errorOnFit > 0.35:
+            return 'The model is overfited: ' + 'Training error: ' + errorOnFit + 'Execution error: ' + errorOnExec
+        else:
+            return 'The model could be overfited: ' + 'Training error: ' + errorOnFit + 'Execution error: ' \
+                   + errorOnExec
+    elif (errorOnFit < 0.6) and (errorOnExec < 0.6):
+        return 'The model is underfited: ' + 'Training error: ' + errorOnFit + 'Execution error: ' + errorOnExec
+
+    else:
+        return 'The model looks OK, check the classification report for more information'
+
