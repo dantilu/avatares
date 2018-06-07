@@ -15,6 +15,13 @@ import numpy as np      # For number computing
 
 from ciberinteligencia.cypher.aes import *
 from ciberinteligencia.configuration.config import *
+from ciberinteligencia.algorithms import utility
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import svm
 
 from datetime import datetime
 from collections import defaultdict
@@ -430,14 +437,38 @@ try:
     #api = login()
     usuario = UserRead()
 
-    api = login()
+    #api = login()
     #Creamos fichero de salida
     # Si se le pasa true como tercer parametro calcula el numero total de hashtags
     # Por el contrario, si le pasamos false calcula el numero de tweets que tienen algun hashtag
     # Hay que tener en cuenta que las respuestas a un tweet tambien las considera como ULR's porque son enlaces al propio Tweeter
-    filter_profiles(args.inputFile, args.outputFile, 100, True, True, True)
+    #filter_profiles(args.inputFile, args.outputFile, 100, True, True, True)
+    data = utility.prepareDataset('../datasets/finalDataset.csv', 'a_id')
+    X = data.drop('isabot', axis=1)
+    y = data['isabot']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
 
+    #Modelo de Arbol de decision
+    #model = tree.DecisionTreeClassifier()
+    #model.fit(X_train, y_train)
 
+    #model = utility.loadModel('decisionTree_1')
+    #Modelo de Random Forest
+    #model = RandomForestClassifier()
+    #model.fit(X_train, y_train)
+
+    #Modelo de SVM
+    #model = svm.SVC()
+    #model.fit(X_train, y_train)
+
+    # Prueba de funcionamiento y calculo de la precision
+    #y_predictExec = model.predict(X_test)
+    #y_predictFit = model.predict(X_train)
+    #print utility.howIsTheFit(y_train, y_predictFit, y_test, y_predictExec)
+    #print 'Tabla de ejecucion'
+    #print utility.calculeClasifficationReport(y_test, y_predictExec)
+    #print 'Tabla de entreno'
+    #print utility.calculeClasifficationReport(y_train, y_predictFit)
 
 except Exception as e:  # catch all those ugly errors
     print "Se ha producido un error {}".format(e)

@@ -1,4 +1,6 @@
 from sklearn.externals import joblib
+import time
+import datetime
 import pandas as pd
 from sklearn import metrics
 
@@ -13,10 +15,11 @@ targetNames = ['Humano', 'Bot']
 def prepareDataset(csvFile, indexCol):
     #Pasamos el CSV a un dataframe
     data = pd.read_csv(csvFile, index_col=indexCol)
-    #Seleccionamos los campos que vamos a utilizar, Deberia ser estatico, alomejor en el fichero de conf
-    data = data[['','','','']]
     #Eliminando las lineas a las que les falta alguno de los valores que utilizamos
     data.dropna(how='any', inplace=True)
+    #Pasamos la fecha a formato TimeStamp
+    data['creation_date'] = data['creation_date'].apply\
+        (lambda x: time.mktime(datetime.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timetuple()))
     return data
 
 #Esta funcion devuelve una tabla imprimible con los valores de precision, recall y F1 del algoritmo
@@ -30,14 +33,14 @@ def calculeClasifficationReport(trueValues, predictedValues):
 #Funcion que genera el fichero donde se almacena el modelo para recuperarlo en caso de que sea necesario
 def makeItPersistent(model, fileName):
     #Generamos la ruta donde se almacenara
-    path = 'models/' + fileName
+    path = '../models/' + fileName
     joblib.dump(model, path)
     print 'Model stored in:' + path
 
 #Funcion que carga y devuleve el modelo del alogritmo seleccionado
 def loadModel(fileName):
     #Generamos el path
-    path = 'models/' + fileName
+    path = '../models/' + fileName
     model = joblib.load(path)
     return model
 
