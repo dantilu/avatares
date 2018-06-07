@@ -63,9 +63,11 @@ class UserRead:
         self.percent_negative_tweets = 0
         self.percent_neutral_tweets = 0
         self.average_lenth_from_tweets = 0
+        self.isabot = 0
 
-    def profile_initialize(self, api_profile):
+    def profile_initialize(self, api_profile, isabot):
         self.profile = api_profile
+        self.isabot = isabot
 
     def clean_user(self):
         self.profile = None
@@ -102,20 +104,7 @@ class UserRead:
         self.percent_negative_tweets = 0
         self.percent_neutral_tweets = 0
         self.average_lenth_from_tweets = 0
-
-    #Quizas esto sea mejor hacerlo pasando por un bucle, ya que con las funciones de utility de algoritmos podemos
-    #pasar aquellos valores que no sean numericos a valores que nos sirvan
-    def train1(self):
-        linea = str(self.a_id) + ',' + str(self.name_length) + ',' + str(self.name_letters_amount)
-        linea += ',' + str(self.name_numbers_amount) + ',' + \
-                 '1' if self.location is not None else '0'
-        linea += ',' + str(self.ratio_friends_followers) + ',' + str(self.total_number_of_words)
-        linea += ',' + str(self.total_unique_words) + ',' + str(self.lexical_diversity) + \
-                 str(self.average_number_words_per_tweet) + ',' + str(self.smog_index) + ',' + \
-                 str(self.number_of_tweets) + ',' + str(self.number_of_hashtags) + \
-                 str(self.number_of_urls) + ',' + str(self.number_of_mentions) \
-                 + ',' + str(self.last_24_hours_tweet) + '\n'
-        return linea
+        self.isabot = 0
 
     def paramline(self):
         try:
@@ -141,24 +130,28 @@ class UserRead:
 
         return firstLine[:len(firstLine)-1] + '\n'
 
+
 def login():
     auth = tweepy.OAuthHandler(decrypt_with_aes(cipher_for_decryption, CONSUMER_KEY),
                                decrypt_with_aes(cipher_for_decryption, CONSUMER_SECRET))
     auth.set_access_token(decrypt_with_aes(cipher_for_decryption, ACCESS_TOKEN),
                           decrypt_with_aes(cipher_for_decryption, ACCESS_TOKEN_SECRET))
+    #auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    #auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
     return tweepy.API(auth)
 
 
-
-
-
 def check_profile(profile, usuario):
     try:
-        user_name = profile.split(",")
-        perfil = api.get_user('@' + user_name[0])
+        user_name = profile.split('	')
+        perfil = api.get_user(user_name[0])
+        isabot = user_name[1] #Guardamos si es o no un bot
+        #Comprobamos si quedan lineas debajo para no coger el salto de linea
+        if isabot[:len(isabot)] == '1\n' or isabot[:len(isabot)] == '0\n':
+            isabot = isabot[:len(isabot)-1]
         # Crea un objeto de la clase usuario
-        usuario.profile_initialize(perfil)
+        usuario.profile_initialize(perfil, isabot)
         return True
     except Exception as ex:  # catch all those ugly errors
         print 'No se ha encontrado el perfil @{} Razon {}'.format(user_name[0], ex.args)
@@ -181,7 +174,7 @@ def filter_profiles(input_filename, output_filename, limitador,  flag_hashtag, f
                     if content_based_characteristics(user, limitador,  flag_hashtag, flag_url, flag_mention):
                         if content_based_characteristics_upgraded(user, limitador):
                             f_out.write(user.paramline())
-                            print "Parametros del usuario {} : {}".format(user.name, user.train1())
+                            print "Parametros del usuario {} : {}".format(user.name, user.paramline())
                             user.clean_user()
         f_in.close()
         f_out.close()
