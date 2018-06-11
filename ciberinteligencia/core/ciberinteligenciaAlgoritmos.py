@@ -443,16 +443,16 @@ try:
     # Por el contrario, si le pasamos false calcula el numero de tweets que tienen algun hashtag
     # Hay que tener en cuenta que las respuestas a un tweet tambien las considera como ULR's porque son enlaces al propio Tweeter
     #filter_profiles(args.inputFile, args.outputFile, 100, True, True, True)
-    data = utility.prepareDataset('../datasets/finalDataset.csv', 'a_id')
+    data = utility.prepareDataset('../datasets/secondDataset.csv', 'a_id')
     X = data.drop('isabot', axis=1)
     y = data['isabot']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
+    #X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
 
     #Modelo de Arbol de decision
     #model = tree.DecisionTreeClassifier()
     #model.fit(X_train, y_train)
 
-    #model = utility.loadModel('decisionTree_1')
+    model = utility.loadModel('randomForest_1')
     #Modelo de Random Forest
     #model = RandomForestClassifier()
     #model.fit(X_train, y_train)
@@ -462,11 +462,11 @@ try:
     #model.fit(X_train, y_train)
 
     # Prueba de funcionamiento y calculo de la precision
-    #y_predictExec = model.predict(X_test)
+    y_predictExec = model.predict(X)
     #y_predictFit = model.predict(X_train)
     #print utility.howIsTheFit(y_train, y_predictFit, y_test, y_predictExec)
-    #print 'Tabla de ejecucion'
-    #print utility.calculeClasifficationReport(y_test, y_predictExec)
+    print 'Tabla de ejecucion'
+    print utility.calculeClasifficationReport(y, y_predictExec)
     #print 'Tabla de entreno'
     #print utility.calculeClasifficationReport(y_train, y_predictFit)
 
