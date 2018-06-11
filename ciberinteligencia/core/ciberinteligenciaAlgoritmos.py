@@ -138,13 +138,43 @@ class UserRead:
         return firstLine[:len(firstLine)-1] + '\n'
 
 
+def get_followers(api, user_id, limitador):
+    try:
+        users = []
+        pages = []
+        users_count = 0
+        page_count = 0
+        print "Calculando los followers de {}".format(user_id)
+        for page in tweepy.Cursor(api.followers, id=user_id, count=limitador).pages():
+            page_count += 1
+            for user in page:
+                users_count += 1
+                users.extend(user.screen_name)
+                print "Numero {}  nombre {}".format(users_count, user.screen_name)
+            print "Pagina {}".format(page_count)
+    except tweepy.RateLimitError:
+        print "RateLimitError...waiting 1000 seconds to continue "
+    print "Numero de followers encontrados : {} ".format(users_count)
+    return users
+
+
+def get_user_followers(api, user_name):
+    users = tweepy.Cursor(api.followers, screen_name=user_name).items()
+
+    followers_ids = []
+    print "Calculando los followers"
+    for page in tweepy.Cursor(api.followers_ids, screen_name="McDonalds").pages():
+        followers_ids.extend(page)
+        time.sleep(60)
+
+
 def login():
-    auth = tweepy.OAuthHandler(decrypt_with_aes(cipher_for_decryption, CONSUMER_KEY),
-                               decrypt_with_aes(cipher_for_decryption, CONSUMER_SECRET))
-    auth.set_access_token(decrypt_with_aes(cipher_for_decryption, ACCESS_TOKEN),
-                          decrypt_with_aes(cipher_for_decryption, ACCESS_TOKEN_SECRET))
-    #auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    #auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+    #auth = tweepy.OAuthHandler(decrypt_with_aes(cipher_for_decryption, CONSUMER_KEY),
+    #                           decrypt_with_aes(cipher_for_decryption, CONSUMER_SECRET))
+    #auth.set_access_token(decrypt_with_aes(cipher_for_decryption, ACCESS_TOKEN),
+    #                      decrypt_with_aes(cipher_for_decryption, ACCESS_TOKEN_SECRET))
+    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
     return tweepy.API(auth)
 
@@ -434,25 +464,26 @@ try:
     print args.outputFile
 
     #Hacemos login en la API de Twitter
-    #api = login()
+    api = login()
     usuario = UserRead()
-
+    print api.rate_limit_status()
+    get_followers(api, "Ford", 2)
     #api = login()
     #Creamos fichero de salida
     # Si se le pasa true como tercer parametro calcula el numero total de hashtags
     # Por el contrario, si le pasamos false calcula el numero de tweets que tienen algun hashtag
     # Hay que tener en cuenta que las respuestas a un tweet tambien las considera como ULR's porque son enlaces al propio Tweeter
     #filter_profiles(args.inputFile, args.outputFile, 100, True, True, True)
-    data = utility.prepareDataset('../datasets/secondDataset.csv', 'a_id')
-    X = data.drop('isabot', axis=1)
-    y = data['isabot']
+    #data = utility.prepareDataset('../datasets/secondDataset.csv', 'a_id')
+    #X = data.drop('isabot', axis=1)
+    #y = data['isabot']
     #X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
 
     #Modelo de Arbol de decision
     #model = tree.DecisionTreeClassifier()
     #model.fit(X_train, y_train)
 
-    model = utility.loadModel('randomForest_1')
+    #model = utility.loadModel('randomForest_1')
     #Modelo de Random Forest
     #model = RandomForestClassifier()
     #model.fit(X_train, y_train)
@@ -462,11 +493,11 @@ try:
     #model.fit(X_train, y_train)
 
     # Prueba de funcionamiento y calculo de la precision
-    y_predictExec = model.predict(X)
+    #y_predictExec = model.predict(X)
     #y_predictFit = model.predict(X_train)
     #print utility.howIsTheFit(y_train, y_predictFit, y_test, y_predictExec)
-    print 'Tabla de ejecucion'
-    print utility.calculeClasifficationReport(y, y_predictExec)
+    #print 'Tabla de ejecucion'
+    #print utility.calculeClasifficationReport(y, y_predictExec)
     #print 'Tabla de entreno'
     #print utility.calculeClasifficationReport(y_train, y_predictFit)
 
