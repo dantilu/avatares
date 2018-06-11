@@ -2,6 +2,7 @@
 configparser
 tweepy
 uuid
+pycrypto
 textblob
 textstat
 pandas
@@ -9,4 +10,3 @@ numpy
 scikit-learn
 SciPy
 matplotlib
-pymongo

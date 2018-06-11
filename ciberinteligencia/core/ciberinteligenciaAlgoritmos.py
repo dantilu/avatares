@@ -432,9 +432,9 @@ try:
 
     print args.inputFile
     print args.outputFile
-    api = None
+
     #Hacemos login en la API de Twitter
-    api = login()
+    #api = login()
     usuario = UserRead()
 
     #api = login()
