@@ -10,89 +10,104 @@ Created on Tue Mar 27 18:43:55 2018
 # Import the modules needed to run the script.
 import sys
 import os
-import platform
+import msvcrt
 import getpass
-import ciberinteligencia.database.databaseConnector as db
-
-# Main definition - constants
-menu_actions = {}
+import ciberinteligencia.database.databaseConnector as Db
 
 # =======================
 #     MENUS FUNCTIONS
 # =======================
 
 
+def getpass2(prompt='Password: ', hideChar=' '):
+    count = 0
+    password = ''
+
+    for char in prompt:
+        msvcrt.putch(char)  # cuz password, be trouble
+
+    while True:
+        char = msvcrt.getch()
+
+        if char == '\r' or char == '\n':
+            break
+
+        if char == '\003':
+            raise KeyboardInterrupt  # ctrl + c
+
+        if char == '\b':
+            count -= 1
+            password = password[:-1]
+
+            if count >= 0:
+                msvcrt.putch('\b')
+                msvcrt.putch(' ')
+                msvcrt.putch('\b')
+
+        else:
+            if count < 0:
+                count = 0
+
+            count += 1
+            password += char
+            msvcrt.putch(hideChar)
+
+    msvcrt.putch('\r')
+    msvcrt.putch('\n')
+
+    return "'%s'" % password if password != '' else "''"
+
+
+
 def cls():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def login_menu():
-    show_login()
-
-
 def show_login():
-    # Comprobamos que el usuario introducido por el usuario existe y si la password introducida concide con la que nosotros tenemos
-    print "Bienvenido, introduzca los datos de acceso por favor:"
-    user_name = raw_input(" >> User:  ")
-    pswd = getpass.getpass('Password:')
-    if db.check_password(user_name, pswd):
-        main_menu(user_name)
+    try:
+        # Comprobamos que el usuario introducido por el usuario existe y si la password introducida concide con la que nosotros tenemos
+        print "Introduzca los datos de acceso por favor:"
+        name = raw_input(" >> User:  ")
+        pswd = getpass.getpass("Enter the password: ")
+        print pswd
+        if Db.check_password(name, pswd):
+            return name
+        else:
+            return False
+    except Exception as error:
+        print('ERROR', error)
     else:
-        print "Datos de ingreso incorrectos, hasta pronto!"
+        print('Password entered:', p)
 
 
-# Main menu
-def main_menu(user_name):
-    cls()
-
-    print "Bienvenido {},\n".format(user_name)
-    print "Por favor, elija la opcion del menu que desea ejecutar:"
-    print "1. Menu 1"
-    print "2. Menu 2"
-    print "\n0. Quit"
-    choice = raw_input(" >>  ")
-    exec_menu(choice)
-    return
+#Login Menu
+def print_login_menu():
+    print 10 * "-", "Login", 10 * "-"
+    print "1. Login"
+    print "2. Register"
+    print "3. Exit"
+    print 25 * "-"
 
 
-# Execute menu
-def exec_menu(choice):
-    cls()
-    ch = choice.lower()
-    if ch == '':
-        menu_actions['main_menu']()
+#Main Menu
+def print_main_menu(user_name):  ## Your menu design here
+    print 10 * "-", "Main Menu", 10 * "-"
+    print "Bienvenido {}".format(user_name)
+    print "1. Cargar Modelo"
+    print "2. Generar modelo"
+    print "3. Exit"
+    print 25 * "-"
+    choice = input("Enter your choice [1-3]: ")
+    if choice == 1:
+        print "Cargar el modelo!"
+    elif choice == 2:
+        print "Generar el modelo nuevo!"
+    elif choice == 3:
+        print "See you!"
     else:
-        try:
-            menu_actions[ch]()
-        except KeyError:
-            print "Invalid selection, please try again.\n"
-            menu_actions['main_menu']()
-    return
+        # Any integer inputs other than values 1-5 we print an error message
+        raw_input("Prueba de nuevo!")
 
-
-# Menu 1
-def menu1():
-    print "Hello Menu 1 !\n"
-    print "9. Back"
-    print "0. Quit"
-    choice = raw_input(" >>  ")
-    exec_menu(choice)
-    return
-
-
-# Menu 2
-def menu2():
-    print "Hello Menu 2 !\n"
-    print "9. Back"
-    print "0. Quit"
-    choice = raw_input(" >>  ")
-    exec_menu(choice)
-    return
-
-
-# Back to main menu
-def back():
-    menu_actions['main_menu']()
 
 
 # Exit program
@@ -101,23 +116,27 @@ def exit():
 
 
 # =======================
-#    MENUS DEFINITIONS
-# =======================
-
-# Menu definition
-menu_actions = {
-    'main_menu': main_menu,
-    '1': menu1,
-    '2': menu2,
-    '9': back,
-    '0': exit,
-}
-
-# =======================
 #      MAIN PROGRAM
 # =======================
 
 # Main Program
 if __name__ == "__main__":
-    login_menu()
+    loop = True
+    user_name = None
+    print_login_menu()  ## Displays menu
+    choice = input("Enter your choice [1-3]: ")
 
+    if choice == 1:
+        user_name = show_login()
+        if user_name is not False or user_name is not None:
+            # EL usuario ha conseguido hacer login correctamente
+            print_main_menu(user_name)
+        else:
+            print "Datos de acceso incorrectos, hasta pronto!"
+    elif choice == 2:
+        print "Under Construction!"
+    elif choice == 3:
+        print "See you!"
+    else:
+        # Any integer inputs other than values 1-5 we print an error message
+        raw_input("Prueba de nuevo!")

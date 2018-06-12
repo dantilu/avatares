@@ -78,12 +78,10 @@ def check_password(user, pwd):
         collection = client.test_database.USERS
         condition = {"name": user, "password": pwd_hashed}
         if collection.find_one(condition) is not None:
-            print "Usuario encontrado!"
             return True
         else:
             return False
     except Exception as login_ex:
-        print "Datos de ingreso incorrectos"
         return False
 
 

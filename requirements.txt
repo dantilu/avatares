@@ -11,3 +11,4 @@ scikit-learn
 SciPy
 matplotlib
 pymongo
+console-menu
