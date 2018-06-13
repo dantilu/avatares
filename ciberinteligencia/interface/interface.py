@@ -10,53 +10,15 @@ Created on Tue Mar 27 18:43:55 2018
 # Import the modules needed to run the script.
 import sys
 import os
-import msvcrt
+#import msvcrt
 import getpass
 import ciberinteligencia.database.databaseConnector as Db
+import ciberinteligencia.algorithms.utility as utility
+import ciberinteligencia.core.ciberinteligenciaAlgoritmos as ciberInteligencia
 
 # =======================
 #     MENUS FUNCTIONS
-# =======================
-
-
-def getpass2(prompt='Password: ', hideChar=' '):
-    count = 0
-    password = ''
-
-    for char in prompt:
-        msvcrt.putch(char)  # cuz password, be trouble
-
-    while True:
-        char = msvcrt.getch()
-
-        if char == '\r' or char == '\n':
-            break
-
-        if char == '\003':
-            raise KeyboardInterrupt  # ctrl + c
-
-        if char == '\b':
-            count -= 1
-            password = password[:-1]
-
-            if count >= 0:
-                msvcrt.putch('\b')
-                msvcrt.putch(' ')
-                msvcrt.putch('\b')
-
-        else:
-            if count < 0:
-                count = 0
-
-            count += 1
-            password += char
-            msvcrt.putch(hideChar)
-
-    msvcrt.putch('\r')
-    msvcrt.putch('\n')
-
-    return "'%s'" % password if password != '' else "''"
-
+# =======================1
 
 
 def cls():
@@ -99,7 +61,7 @@ def print_main_menu(user_name):  ## Your menu design here
     print 25 * "-"
     choice = input("Enter your choice [1-3]: ")
     if choice == 1:
-        print "Cargar el modelo!"
+        load_model_menu()
     elif choice == 2:
         print "Generar el modelo nuevo!"
     elif choice == 3:
@@ -109,7 +71,46 @@ def print_main_menu(user_name):  ## Your menu design here
         raw_input("Prueba de nuevo!")
 
 
+#Load model submenu
+def load_model_menu():
+    i = 1
+    print 3 * '\n',10 * "-", "Load Model", 10 * "-"
+    print "Elija el menú que desea cargar"
+    print "Modelos disponibles: "
+    avaiable_models = utility.ls('../models/')
+    for opcion in avaiable_models:
+        if opcion[len(opcion)-3:] == '.py':
+            continue
+        print str(i) + '. ' + opcion
+        i += 1
 
+    choice = input("Enter you choice [1-" + str(i-1) + ']: ')
+    print choice
+    if choice not in  list(range(i)) or choice == 0:
+        print '\n',"¡El modelo seleccionado no es valido!"
+        load_model_menu()
+    else:
+        for x in range(i):
+            if choice == x:
+                print '\n','Cargando el modelo seleccionado... '
+                model = utility.loadModel(avaiable_models[x])
+                print '\n', 'Modelo:', avaiable_models[x], 'cargado correctamente'
+                break
+        load_funcional_menu()
+
+def load_funcional_menu():
+    print 3 * '\n',10 * "-", "Ciberinteligencia de avatares", 10 * "-"
+    print "1. Análizar seguidores de un usuario"
+    print "2. Info"
+    choice = input("Enter your choice [1-3]: ")
+    if choice == 1:
+        print "Introduzca el nombre del usuario a análizar incluyendo el @"
+        target_user = raw_input(">>")
+        print "Ha elegido: ", target_user
+        print "Analizando seguidores de", target_user, '\n',"Esto podría tardar un rato..."
+        ciberInteligencia.get_followers(target_user, 3)
+    elif choice == 2:
+        print "Ayuda"
 # Exit program
 def exit():
     sys.exit()

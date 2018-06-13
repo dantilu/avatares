@@ -138,8 +138,9 @@ class UserRead:
         return firstLine[:len(firstLine)-1] + '\n'
 
 
-def get_followers(api, user_id, limitador):
+def get_followers(user_id, limitador):
     try:
+        api = login()
         users = []
         pages = []
         users_count = 0
@@ -455,19 +456,19 @@ def analize_sentiment(tweet):
 
 
 try:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("inputFile", help="inputFile File with the Twitter Profiles")
-    parser.add_argument("outputFile", help="outputFile File where you want to get the output")
-    args = parser.parse_args()
+    #parser = argparse.ArgumentParser()
+    #parser.add_argument("inputFile", help="inputFile File with the Twitter Profiles")
+    #parser.add_argument("outputFile", help="outputFile File where you want to get the output")
+    #args = parser.parse_args()
 
-    print args.inputFile
-    print args.outputFile
+    #print args.inputFile
+    #print args.outputFile
 
     #Hacemos login en la API de Twitter
     api = login()
     usuario = UserRead()
-    print api.rate_limit_status()
-    get_followers(api, "Ford", 2)
+    #print api.rate_limit_status()
+    #get_followers(api, "Ford", 2)
     #api = login()
     #Creamos fichero de salida
     # Si se le pasa true como tercer parametro calcula el numero total de hashtags

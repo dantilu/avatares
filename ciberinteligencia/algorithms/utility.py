@@ -3,6 +3,9 @@ import time
 import datetime
 import pandas as pd
 from sklearn import metrics
+from os import listdir
+from os.path import isfile, join
+
 
 #Global, con los nombres de las clases en las que clasificamos
 targetNames = ['Humano', 'Bot']
@@ -67,3 +70,6 @@ def howIsTheFit(trueValuesFit, predictedValuesFit, predictedValues, trueValues, 
     else:
         return 'The model looks OK, check the classification report for more information'
 
+#Definimos el comando ls para listar los archivos de un directorio
+def ls(ruta = '.'):
+    return [arch for arch in listdir(ruta) if isfile(join(ruta, arch))]
