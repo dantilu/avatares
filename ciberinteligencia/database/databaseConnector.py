@@ -18,7 +18,7 @@ def create_user(username, password):
         hash_object = hashlib.sha256(password)
         hex_dig = hash_object.hexdigest()
 
-        params = {"_id": collection.count(), "name": username, "password": hex_dig}
+        params = {"_id": user_collection.count(), "name": username, "password": hex_dig}
         user_collection.insert(params)
         print "Usuario insertado en base de datos"
 

@@ -117,7 +117,7 @@ class UserRead:
         try:
             params = self.__dict__
             values = ''
-            params2 = (param for param in sorted(list(params.keys())) if param not in ['profile','user_timeline','name','friends_count','followers_count'])
+            params2 = (param for param in sorted(list(params.keys())) if param not in ['profile', 'user_timeline', 'name', 'friends_count', 'followers_count'])
             for param in params2:
                 values += str(params[param]) + ','
             values = values[:len(values)-1] + '\n'
@@ -148,8 +148,8 @@ def get_followers(user_id, limitador):
         for page in tweepy.Cursor(api_followers.followers, id=user_id, count=limitador).pages():
             page_count += 1
             for user in page:
+                users.append(user.screen_name)
                 users_count += 1
-                users.extend(user.screen_name)
                 print "Numero {}  nombre {}".format(users_count, user.screen_name)
             print "Pagina {}".format(page_count)
     except tweepy.RateLimitError:
