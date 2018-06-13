@@ -12,6 +12,7 @@ import re
 import time
 import pandas as pd     # To handle data
 import numpy as np      # For number computing
+import math
 
 from ciberinteligencia.cypher.aes import *
 from ciberinteligencia.configuration.config import *
@@ -50,31 +51,30 @@ class UserRead:
         self.location = None
         self.ratio_friends_followers = 0
         self.verified = None
-        self.default_profile_image = None
+        self.default_profile_image = False
         self.default_profile = None
         self.creation_date = None
-        self.total_number_of_words = None
-        self.total_unique_words = None
-        self.lexical_diversity = None
-        self.average_number_words_per_tweet = None
-        self.smog_index = None
-        self.number_of_tweets = None
-        self.number_of_hashtags = None
-        self.number_of_urls = None
-        self.number_of_mentions = None
-        self.last_24_hours_tweet = None
-        self.average_time_between_tweets = None
-        self.desviacion_tipica_average_tweet_time = None
-        self.creation_content_sources = None
+        self.total_number_of_words = 0
+        self.total_unique_words = 0
+        self.lexical_diversity = 0
+        self.average_number_words_per_tweet = 0
+        self.smog_index = 0
+        self.number_of_tweets = 0
+        self.number_of_hashtags = 0
+        self.number_of_urls = 0
+        self.number_of_mentions = 0
+        self.last_24_hours_tweet = 0
+        self.average_time_between_tweets = 0
+        self.desviacion_tipica_average_tweet_time = 0
+        self.creation_content_sources = 0
         self.percent_positive_tweets = 0
         self.percent_negative_tweets = 0
         self.percent_neutral_tweets = 0
         self.average_lenth_from_tweets = 0
-        self.isabot = 0
+        #self.isabot = 0
 
-    def profile_initialize(self, api_profile, isabot):
+    def profile_initialize(self, api_profile):
         self.profile = api_profile
-        self.isabot = isabot
 
     def clean_user(self):
         self.profile = None
@@ -91,27 +91,27 @@ class UserRead:
         self.location = None
         self.ratio_friends_followers = 0
         self.verified = None
-        self.default_profile_image = None
+        self.default_profile_image = False
         self.default_profile = None
         self.creation_date = None
-        self.total_number_of_words = None
-        self.total_unique_words = None
-        self.lexical_diversity = None
-        self.average_number_words_per_tweet = None
-        self.smog_index = None
-        self.number_of_tweets = None
-        self.number_of_hashtags = None
-        self.number_of_urls = None
-        self.number_of_mentions = None
-        self.last_24_hours_tweet = None
-        self.average_time_between_tweets = None
-        self.desviacion_tipica_average_tweet_time = None
-        self.creation_content_sources = None
+        self.total_number_of_words = 0
+        self.total_unique_words = 0
+        self.lexical_diversity = 0
+        self.average_number_words_per_tweet = 0
+        self.smog_index = 0
+        self.number_of_tweets = 0
+        self.number_of_hashtags = 0
+        self.number_of_urls = 0
+        self.number_of_mentions = 0
+        self.last_24_hours_tweet = 0
+        self.average_time_between_tweets = 0
+        self.desviacion_tipica_average_tweet_time = 0
+        self.creation_content_sources = 0
         self.percent_positive_tweets = 0
         self.percent_negative_tweets = 0
         self.percent_neutral_tweets = 0
         self.average_lenth_from_tweets = 0
-        self.isabot = 0
+        #self.isabot = 0
 
     def paramline(self):
         try:
@@ -140,13 +140,12 @@ class UserRead:
 
 def get_followers(user_id, limitador):
     try:
-        api = login()
+        api_followers = login()
         users = []
-        pages = []
         users_count = 0
         page_count = 0
         print "Calculando los followers de {}".format(user_id)
-        for page in tweepy.Cursor(api.followers, id=user_id, count=limitador).pages():
+        for page in tweepy.Cursor(api_followers.followers, id=user_id, count=limitador).pages():
             page_count += 1
             for user in page:
                 users_count += 1
@@ -159,14 +158,21 @@ def get_followers(user_id, limitador):
     return users
 
 
-def get_user_followers(api, user_name):
-    users = tweepy.Cursor(api.followers, screen_name=user_name).items()
-
-    followers_ids = []
-    print "Calculando los followers"
-    for page in tweepy.Cursor(api.followers_ids, screen_name="McDonalds").pages():
-        followers_ids.extend(page)
-        time.sleep(60)
+def get_user_followers(user_id, limiter):
+    try:
+        api_user_followers = login2()
+        users = []
+        users_count = 0
+        print "Calculando los followers de {}".format(user_id)
+        for user in tweepy.Cursor(api_user_followers.followers, id=user_id).items(limiter):
+            if (datetime.now() - user.created_at).days > 7:
+                users.append(user.screen_name)
+                users_count += 1
+                #print "{}".format(user.screen_name)
+    except tweepy.RateLimitError:
+        print "RateLimitError...waiting 1000 seconds to continue "
+    print "Numero de followers conseguidos : {} ".format(users_count)
+    return users
 
 
 def login():
@@ -180,16 +186,29 @@ def login():
     return tweepy.API(auth)
 
 
+def login2():
+    #auth = tweepy.OAuthHandler(decrypt_with_aes(cipher_for_decryption, CONSUMER_KEY),
+    #                           decrypt_with_aes(cipher_for_decryption, CONSUMER_SECRET))
+    #auth.set_access_token(decrypt_with_aes(cipher_for_decryption, ACCESS_TOKEN),
+    #                      decrypt_with_aes(cipher_for_decryption, ACCESS_TOKEN_SECRET))
+    auth = tweepy.OAuthHandler(CONSUMER_KEY2, CONSUMER_SECRET2)
+    auth.set_access_token(ACCESS_TOKEN2, ACCESS_TOKEN_SECRET2)
+
+    return tweepy.API(auth)
+
+
 def check_profile(profile, usuario):
     try:
+        api = login()
         user_name = profile.split('	')
         perfil = api.get_user(user_name[0])
-        isabot = user_name[1] #Guardamos si es o no un bot
+
+        #isabot = '0'
         #Comprobamos si quedan lineas debajo para no coger el salto de linea
-        if isabot[:len(isabot)] == '1\n' or isabot[:len(isabot)] == '0\n':
-            isabot = isabot[:len(isabot)-1]
+        #if isabot[:len(isabot)] == '1\n' or isabot[:len(isabot)] == '0\n':
+        #    isabot = isabot[:len(isabot)-1]
         # Crea un objeto de la clase usuario
-        usuario.profile_initialize(perfil, isabot)
+        usuario.profile_initialize(perfil)
         return True
     except Exception as ex:  # catch all those ugly errors
         print 'No se ha encontrado el perfil @{} Razon {}'.format(user_name[0], ex.args)
@@ -198,14 +217,14 @@ def check_profile(profile, usuario):
         return False
 
 
-def filter_profiles(input_filename, output_filename, limitador,  flag_hashtag, flag_url, flag_mention):
+def filter_profiles(followers_list, output_filename, limitador,  flag_hashtag, flag_url, flag_mention):
     try:
-        f_in = open(input_filename, "r")
         f_out = open(output_filename, "w")
         user = UserRead()
         f_out.write(user.generateFirstLine())
         #Procesamos todas las lineas del fichero de entrada, comprobando previamente que el perfil exista, en caso contrario saltaremos al siguiente
-        for i in f_in.readlines():
+        users_proccessed = 0
+        for i in followers_list:
             # El perfil analizado no existe
             if check_profile(i, user):
                 if profile_based_characteristics(user):
@@ -213,8 +232,10 @@ def filter_profiles(input_filename, output_filename, limitador,  flag_hashtag, f
                         if content_based_characteristics_upgraded(user, limitador):
                             f_out.write(user.paramline())
                             print "Parametros del usuario {} : {}".format(user.name, user.paramline())
+                            users_proccessed += 1
                             user.clean_user()
-        f_in.close()
+
+        print "Total de usuarios procesados {}".format(users_proccessed)
         f_out.close()
         return
     except Exception as ex:
@@ -257,6 +278,8 @@ def profile_based_characteristics(usuario):
                 usuario.default_profile_image = True
             else:
                 usuario.default_profile_image = False
+        else:
+            usuario.default_profile_image = False
 
         # Si el perfil esta por defecto es probable que el usuario sea un candidato a bot
         if user.default_profile:
@@ -274,9 +297,12 @@ def profile_based_characteristics(usuario):
 
 def content_based_characteristics(usuario, limitador, flag_hashtag, flag_url, flag_mention):
         try:
+            api = login()
             created_at_list = {}
             usuario.user_timeline = api.user_timeline(usuario.name)
             user = usuario.user_timeline
+            if user == []:
+                return True
             word_count = defaultdict(int)
             number_of_tweets = user[0].user.statuses_count
             total_number_of_hashtags = 0
@@ -394,13 +420,11 @@ def content_based_characteristics_upgraded(usuario, limitador):
         data['SA'] = np.array([analize_sentiment(tweet) for tweet in data['Tweets']])
 
         mean = np.mean(data['len'])
-        fav_max = np.max(data['Likes'])
-        rt_max = np.max(data['RTs'])
 
-        fav = data[data.Likes == fav_max].index[0]
-        rt = data[data.RTs == rt_max].index[0]
-
-        usuario.desviacion_tipica_average_tweet_time = np.std(data['DateTimestamp'])
+        if not np.isnan(np.std(data['DateTimestamp'])):
+            usuario.desviacion_tipica_average_tweet_time = np.std(data['DateTimestamp'])
+        else:
+            usuario.desviacion_tipica_average_tweet_time = 0
 
         # We obtain all possible sources:
         usuario.creation_content_sources = 0
@@ -413,10 +437,11 @@ def content_based_characteristics_upgraded(usuario, limitador):
         pos_tweets = [tweet for index, tweet in enumerate(data['Tweets']) if data['SA'][index] > 0]
         neu_tweets = [tweet for index, tweet in enumerate(data['Tweets']) if data['SA'][index] == 0]
         neg_tweets = [tweet for index, tweet in enumerate(data['Tweets']) if data['SA'][index] < 0]
-        usuario.percent_positive_tweets = len(pos_tweets) * 100 / len(data['Tweets'])
-        usuario.percent_negative_tweets = len(neg_tweets) * 100 / len(data['Tweets'])
-        usuario.percent_neutral_tweets = len(neu_tweets) * 100 / len(data['Tweets'])
-        usuario.average_lenth_from_tweets = mean
+        if len(data['Tweets'] != 0):
+            usuario.percent_positive_tweets = len(pos_tweets) * 100 / len(data['Tweets'])
+            usuario.percent_negative_tweets = len(neg_tweets) * 100 / len(data['Tweets'])
+            usuario.percent_neutral_tweets = len(neu_tweets) * 100 / len(data['Tweets'])
+            usuario.average_lenth_from_tweets = mean
         return True
     except Exception as e:
         print "Content Based Upgraded problem for user {} reason {}".format(usuario.name, e)
@@ -456,7 +481,8 @@ def analize_sentiment(tweet):
 
 
 try:
-    #parser = argparse.ArgumentParser()
+    print
+    # parser = argparse.ArgumentParser()
     #parser.add_argument("inputFile", help="inputFile File with the Twitter Profiles")
     #parser.add_argument("outputFile", help="outputFile File where you want to get the output")
     #args = parser.parse_args()
@@ -465,8 +491,8 @@ try:
     #print args.outputFile
 
     #Hacemos login en la API de Twitter
-    api = login()
-    usuario = UserRead()
+    #api = login()
+    #usuario = UserRead()
     #print api.rate_limit_status()
     #get_followers(api, "Ford", 2)
     #api = login()

@@ -14,6 +14,7 @@ import os
 import getpass
 import ciberinteligencia.database.databaseConnector as Db
 import ciberinteligencia.algorithms.utility as utility
+import ciberinteligencia.core as core
 import ciberinteligencia.core.ciberinteligenciaAlgoritmos as ciberInteligencia
 
 # =======================
@@ -53,6 +54,7 @@ def print_login_menu():
 
 #Main Menu
 def print_main_menu(user_name):  ## Your menu design here
+    cls()
     print 10 * "-", "Main Menu", 10 * "-"
     print "Bienvenido {}".format(user_name)
     print "1. Cargar Modelo"
@@ -73,8 +75,9 @@ def print_main_menu(user_name):  ## Your menu design here
 
 #Load model submenu
 def load_model_menu():
+    cls()
     i = 1
-    print 3 * '\n',10 * "-", "Load Model", 10 * "-"
+    print 3 * '\n', 10 * "-", "Load Model", 10 * "-"
     print "Elija el menú que desea cargar"
     print "Modelos disponibles: "
     avaiable_models = utility.ls('../models/')
@@ -98,8 +101,9 @@ def load_model_menu():
                 break
         load_funcional_menu()
 
+
 def load_funcional_menu():
-    print 3 * '\n',10 * "-", "Ciberinteligencia de avatares", 10 * "-"
+    print 3 * '\n', 10 * "-", "Ciberinteligencia de avatares", 10 * "-"
     print "1. Análizar seguidores de un usuario"
     print "2. Info"
     choice = input("Enter your choice [1-3]: ")
@@ -107,10 +111,13 @@ def load_funcional_menu():
         print "Introduzca el nombre del usuario a análizar incluyendo el @"
         target_user = raw_input(">>")
         print "Ha elegido: ", target_user
-        print "Analizando seguidores de", target_user, '\n',"Esto podría tardar un rato..."
-        ciberInteligencia.get_followers(target_user, 3)
+        print "Analizando seguidores de", target_user, '\n', "Esto podría tardar un rato..."
+        followers = ciberInteligencia.get_user_followers(target_user, 200)
+        ciberInteligencia.filter_profiles(followers, '../core/salida.txt', 100, True, True, True)
     elif choice == 2:
         print "Ayuda"
+
+
 # Exit program
 def exit():
     sys.exit()
@@ -129,7 +136,7 @@ if __name__ == "__main__":
 
     if choice == 1:
         user_name = show_login()
-        if user_name is not False or user_name is not None:
+        if user_name is not False:
             # EL usuario ha conseguido hacer login correctamente
             print_main_menu(user_name)
         else:
