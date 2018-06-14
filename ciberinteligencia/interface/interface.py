@@ -10,6 +10,7 @@ Created on Tue Mar 27 18:43:55 2018
 # Import the modules needed to run the script.
 import sys
 import os
+import time
 #import msvcrt
 import getpass
 import ciberinteligencia.database.databaseConnector as Db
@@ -99,10 +100,10 @@ def load_model_menu():
                 model = utility.loadModel(avaiable_models[x])
                 print '\n', 'Modelo:', avaiable_models[x], 'cargado correctamente'
                 break
-        load_funcional_menu()
+        load_funcional_menu(model)
 
 
-def load_funcional_menu():
+def load_funcional_menu(model):
     print 3 * '\n', 10 * "-", "Ciberinteligencia de avatares", 10 * "-"
     print "1. Análizar seguidores de un usuario"
     print "2. Info"
@@ -110,10 +111,28 @@ def load_funcional_menu():
     if choice == 1:
         print "Introduzca el nombre del usuario a análizar incluyendo el @"
         target_user = raw_input(">>")
-        print "Ha elegido: ", target_user
-        print "Analizando seguidores de", target_user, '\n', "Esto podría tardar un rato..."
-        followers = ciberInteligencia.get_user_followers(target_user, 200)
-        ciberInteligencia.filter_profiles(followers, '../core/salida.txt', 100, True, True, True)
+        print "Ha elegido:", target_user
+        user_path = '../datasets/' + target_user + '.csv'
+        if os.path.isfile(user_path):
+            print 'Ya existe un dataset recopilado para este usuario con fecha:', time.ctime(os.path.getctime(user_path))
+            print '¿Desea generar un nuevo dataset?(Esto sobrescribira el documento actual)'
+            choice = raw_input('[s/n]:')
+            if choice == 's':
+                print "Analizando seguidores de", target_user, '\n', "Esto podría tardar un rato..."
+                followers = ciberInteligencia.get_user_followers(target_user, 20)
+                ciberInteligencia.filter_profiles(followers, '../datasets/' + target_user + '.csv', 100, True, True, True)
+                results = ciberInteligencia.analize_dataset(model, user_path)
+                utility.print_results(results, user_path)
+            elif choice == 'n':
+                print 'Calculando bots.....'
+                results = ciberInteligencia.analize_dataset(model, user_path)
+                utility.print_results(results, user_path)
+        else:
+            print "Analizando seguidores de", target_user, '\n', "Esto podría tardar un rato..."
+            followers = ciberInteligencia.get_user_followers(target_user, 200)
+            ciberInteligencia.filter_profiles(followers, '../datasets/' + target_user + '.csv', 100, True, True, True)
+            results = ciberInteligencia.analize_dataset(model, user_path)
+            utility.print_results(results, user_path)
     elif choice == 2:
         print "Ayuda"
 

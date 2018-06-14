@@ -18,11 +18,15 @@ targetNames = ['Humano', 'Bot']
 def prepareDataset(csvFile, indexCol):
     #Pasamos el CSV a un dataframe
     data = pd.read_csv(csvFile, index_col=indexCol)
+    data = data.drop('name', axis=1)
     #Eliminando las lineas a las que les falta alguno de los valores que utilizamos
     data.dropna(how='any', inplace=True)
     #Pasamos la fecha a formato TimeStamp
     data['creation_date'] = data['creation_date'].apply\
         (lambda x: time.mktime(datetime.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timetuple()))
+    #Pasamos los valores booleanos a 0 o 1
+    #for col in data:
+     #   data[col] = data[col].map({True: 1, False: 0})
     return data
 
 #Esta funcion devuelve una tabla imprimible con los valores de precision, recall y F1 del algoritmo
@@ -73,3 +77,16 @@ def howIsTheFit(trueValuesFit, predictedValuesFit, predictedValues, trueValues, 
 #Definimos el comando ls para listar los archivos de un directorio
 def ls(ruta = '.'):
     return [arch for arch in listdir(ruta) if isfile(join(ruta, arch))]
+
+def print_results(results, user_path):
+    data = pd.read_csv(user_path, index_col='a_id')
+    data = list(data['name'])
+    i = 0
+    bots_count = 0
+    for result in results:
+        if result == 1:
+            print 'Usuario detectado como bot:', data[i]
+            bots_count += 1
+        i += 1
+    if bots_count == 0:
+        print 'No se ha detectado ningun bots en los seguidores analizados'
