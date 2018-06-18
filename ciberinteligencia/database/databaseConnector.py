@@ -20,7 +20,7 @@ def create_user(username, password):
 
         params = {"_id": user_collection.count(), "name": username, "password": hex_dig}
         user_collection.insert(params)
-        print "Usuario insertado en base de datos"
+        print "Usuario", username, "registrado!"
 
     except Exception as user_ex:
         print " Error al insertar en USER: " + user_ex

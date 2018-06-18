@@ -5,7 +5,10 @@ import pandas as pd
 from sklearn import metrics
 from os import listdir
 from os.path import isfile, join
-
+from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import svm
+from sklearn.model_selection import train_test_split
 
 #Global, con los nombres de las clases en las que clasificamos
 targetNames = ['Humano', 'Bot']
@@ -15,18 +18,19 @@ targetNames = ['Humano', 'Bot']
 #Esta funcion parsea y devuelve el dataset de forma que pueda ser utilizado por los diferentes algoritmos
 #en este punto, falta serparar el dataset en los diferentes conjuntos de test y entrenamiento
 
-def prepareDataset(csvFile, indexCol):
-    #Pasamos el CSV a un dataframe
-    data = pd.read_csv(csvFile, index_col=indexCol)
-    data = data.drop('name', axis=1)
+def prepareDataset(csvFile, indexCol, type):
+    if type == "Execution":
+        # Pasamos el CSV a un dataframe
+        data = pd.read_csv(csvFile, index_col=indexCol)
+        data = data.drop('name', axis=1)
+    elif type == "Train":
+        # Pasamos el CSV a un dataframe
+        data = pd.read_csv(csvFile, index_col=indexCol)
     #Eliminando las lineas a las que les falta alguno de los valores que utilizamos
     data.dropna(how='any', inplace=True)
     #Pasamos la fecha a formato TimeStamp
     data['creation_date'] = data['creation_date'].apply\
         (lambda x: time.mktime(datetime.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timetuple()))
-    #Pasamos los valores booleanos a 0 o 1
-    #for col in data:
-     #   data[col] = data[col].map({True: 1, False: 0})
     return data
 
 #Esta funcion devuelve una tabla imprimible con los valores de precision, recall y F1 del algoritmo
@@ -89,4 +93,22 @@ def print_results(results, user_path):
             bots_count += 1
         i += 1
     if bots_count == 0:
-        print 'No se ha detectado ningun bots en los seguidores analizados'
+        print 'No se ha detectado ningun bot en los seguidores analizados'
+
+def generateModel(model_choice, training_dataset):
+    training_dataset = "../Training_Data/" + training_dataset
+    dataset = prepareDataset(training_dataset, indexCol='a_id', type="Train")
+    X = dataset.drop('isabot', axis=1)
+    y = dataset['isabot']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
+    if model_choice == 1:
+        model = tree.DecisionTreeClassifier()
+    elif model_choice == 2:
+        model = RandomForestClassifier()
+    elif model_choice == 3:
+        model = svm.SVC()
+    model.fit(X_train, y_train)
+    print "Nuevo modelo generado!"
+    return model
+
+

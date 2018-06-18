@@ -197,10 +197,12 @@ def login2():
     return tweepy.API(auth)
 
 
+
 def check_profile(profile, usuario):
     try:
         api = login()
         user_name = profile.split('	')
+        print user_name
         perfil = api.get_user(user_name[0])
 
         #isabot = '0'
@@ -236,6 +238,33 @@ def filter_profiles(followers_list, output_filename, limitador,  flag_hashtag, f
                             user.clean_user()
 
         print "Total de usuarios procesados {}".format(users_proccessed)
+        f_out.close()
+        return
+    except Exception as ex:
+        return False
+
+
+def filter_profiles_input_filestream(input_filename, output_filename, limitador,  flag_hashtag, flag_url, flag_mention):
+    try:
+        f_in = open(input_filename, "r")
+        f_out = open(output_filename, "w")
+        user = UserRead()
+        f_out.write(user.generateFirstLine())
+        #Procesamos todas las lineas del fichero de entrada, comprobando previamente que el perfil exista, en caso contrario saltaremos al siguiente
+        users_proccessed = 0
+        for i in f_in.readlines():
+            # El perfil analizado no existe
+            if check_profile(i, user):
+                if profile_based_characteristics(user):
+                    if content_based_characteristics(user, limitador,  flag_hashtag, flag_url, flag_mention):
+                        if content_based_characteristics_upgraded(user, limitador):
+                            f_out.write(user.paramline())
+                            print "Parametros del usuario {} : {}".format(user.name, user.paramline())
+                            users_proccessed += 1
+                            user.clean_user()
+
+        print "Total de usuarios procesados {}".format(users_proccessed)
+        f_in.close()
         f_out.close()
         return
     except Exception as ex:
@@ -482,14 +511,15 @@ def analize_sentiment(tweet):
 
 
 def analize_dataset(model, dataset):
-    data = utility.prepareDataset(dataset, 'a_id')
+    data = utility.prepareDataset(dataset, indexCol='a_id', type="Execution")
     results = model.predict(data)
     return results
 
 
+
 try:
-    print
-    # parser = argparse.ArgumentParser()
+    #print
+    #parser = argparse.ArgumentParser()
     #parser.add_argument("inputFile", help="inputFile File with the Twitter Profiles")
     #parser.add_argument("outputFile", help="outputFile File where you want to get the output")
     #args = parser.parse_args()
@@ -498,30 +528,31 @@ try:
     #print args.outputFile
 
     #Hacemos login en la API de Twitter
-    #api = login()
-    #usuario = UserRead()
+    api = login()
+    usuario = UserRead()
     #print api.rate_limit_status()
     #get_followers(api, "Ford", 2)
-    #api = login()
+    api = login()
     #Creamos fichero de salida
     # Si se le pasa true como tercer parametro calcula el numero total de hashtags
     # Por el contrario, si le pasamos false calcula el numero de tweets que tienen algun hashtag
     # Hay que tener en cuenta que las respuestas a un tweet tambien las considera como ULR's porque son enlaces al propio Tweeter
     #filter_profiles(args.inputFile, args.outputFile, 100, True, True, True)
-    #data = utility.prepareDataset('../datasets/secondDataset.csv', 'a_id')
+
+    #data = utility.prepareDataset('../Training_Data/secondDataset.csv', 'a_id')
     #X = data.drop('isabot', axis=1)
     #y = data['isabot']
     #X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
 
     #Modelo de Arbol de decision
     #model = tree.DecisionTreeClassifier()
-    #model.fit(X_train, y_train)
-
-    #model = utility.loadModel('randomForest_1')
+    #model.fit(X, y)
+    #utility.makeItPersistent(model, 'Decision_Tree_Entrenamiento-3')
+    #model = utility.loadModel('Random_Forest_Entrenamiento-2')
     #Modelo de Random Forest
     #model = RandomForestClassifier()
-    #model.fit(X_train, y_train)
-
+    #model.fit(X, y)
+    #utility.makeItPersistent(model, 'Random_Forest_Entrenamiento-3')
     #Modelo de SVM
     #model = svm.SVC()
     #model.fit(X_train, y_train)

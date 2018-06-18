@@ -13,9 +13,10 @@ import os
 import time
 #import msvcrt
 import getpass
-import ciberinteligencia.database.databaseConnector as Db
 import ciberinteligencia.algorithms.utility as utility
+import ciberinteligencia.database.databaseConnector as database
 import ciberinteligencia.core as core
+import pyautogui
 import ciberinteligencia.core.ciberinteligenciaAlgoritmos as ciberInteligencia
 
 # =======================
@@ -34,7 +35,7 @@ def show_login():
         name = raw_input(" >> User:  ")
         pswd = getpass.getpass("Enter the password: ")
         print pswd
-        if Db.check_password(name, pswd):
+        if database.check_password(name, pswd):
             return name
         else:
             return False
@@ -46,6 +47,7 @@ def show_login():
 
 #Login Menu
 def print_login_menu():
+    pyautogui.hotkey('command', 'i')
     print 10 * "-", "Login", 10 * "-"
     print "1. Login"
     print "2. Register"
@@ -55,7 +57,7 @@ def print_login_menu():
 
 #Main Menu
 def print_main_menu(user_name):  ## Your menu design here
-    cls()
+    pyautogui.hotkey('command', 'i')
     print 10 * "-", "Main Menu", 10 * "-"
     print "Bienvenido {}".format(user_name)
     print "1. Cargar Modelo"
@@ -66,19 +68,50 @@ def print_main_menu(user_name):  ## Your menu design here
     if choice == 1:
         load_model_menu()
     elif choice == 2:
-        print "Generar el modelo nuevo!"
+        load_generate_menu()
     elif choice == 3:
-        print "See you!"
+         print "See you!"
     else:
         # Any integer inputs other than values 1-5 we print an error message
         raw_input("Prueba de nuevo!")
 
 
+def load_generate_menu():
+    pyautogui.hotkey('command', 'i')
+    print 10 * "-", "Generate a new model", 10 * "-"
+    print "Elija el algoritmo para el nuevo modelo"
+    print "1. Decision Tree"
+    print "2. Random Forest"
+    print "3. SVM"
+    algoritm_choice = input("Enter your choice [1-3]: ")
+    while(algoritm_choice > 3 or algoritm_choice < 1):
+        print "Seleccione uno de los algoritmos de la lista"
+        algoritm_choice = input("Enter your choice [1-3]: ")
+    print "Algoritmo seleccionado, seleccione un dataset para entrenar"
+    avaiable_datasets = utility.ls('../Training_Data/')
+    i = 1
+    for opcion in avaiable_datasets:
+        if opcion[len(opcion) - 4:] == '.txt':
+            continue
+        print str(i) + '. ' + opcion
+        i += 1
+    dataset_choice = input("Enter you choice [1-" + str(i-1) + ']: ')
+    dataset_name = avaiable_datasets[dataset_choice]
+    while(dataset_choice not in list(range(i)) or dataset_choice == 0):
+        print '\n', "¡El dataset seleccionado no es valido!"
+        print "Seleccione un dataset de la lista"
+        dataset_choice = input("Enter you choice [1-" + str(i - 1) + ']: ')
+        dataset_name = avaiable_datasets[dataset_choice]
+        print dataset_name
+    model = utility.generateModel(algoritm_choice, dataset_name)
+    load_funcional_menu(model)
+
+
 #Load model submenu
 def load_model_menu():
-    cls()
+    pyautogui.hotkey('command', 'i')
     i = 1
-    print 3 * '\n', 10 * "-", "Load Model", 10 * "-"
+    print 10 * "-", "Load Model", 10 * "-"
     print "Elija el menú que desea cargar"
     print "Modelos disponibles: "
     avaiable_models = utility.ls('../models/')
@@ -89,7 +122,6 @@ def load_model_menu():
         i += 1
 
     choice = input("Enter you choice [1-" + str(i-1) + ']: ')
-    print choice
     if choice not in  list(range(i)) or choice == 0:
         print '\n',"¡El modelo seleccionado no es valido!"
         load_model_menu()
@@ -104,12 +136,13 @@ def load_model_menu():
 
 
 def load_funcional_menu(model):
-    print 3 * '\n', 10 * "-", "Ciberinteligencia de avatares", 10 * "-"
+    pyautogui.hotkey('command', 'i')
+    print 10 * "-", "Ciberinteligencia de avatares", 10 * "-"
     print "1. Análizar seguidores de un usuario"
-    print "2. Info"
-    choice = input("Enter your choice [1-3]: ")
+    print "2. Información sobre el modelo"
+    choice = input("Enter your choice [1-2]: ")
     if choice == 1:
-        print "Introduzca el nombre del usuario a análizar incluyendo el @"
+        print "Introduzca el nombre del usuario a análizar"
         target_user = raw_input(">>")
         print "Ha elegido:", target_user
         user_path = '../datasets/' + target_user + '.csv'
@@ -117,6 +150,7 @@ def load_funcional_menu(model):
             print 'Ya existe un dataset recopilado para este usuario con fecha:', time.ctime(os.path.getctime(user_path))
             print '¿Desea generar un nuevo dataset?(Esto sobrescribira el documento actual)'
             choice = raw_input('[s/n]:')
+            pyautogui.hotkey('command', 'i')
             if choice == 's':
                 print "Analizando seguidores de", target_user, '\n', "Esto podría tardar un rato..."
                 followers = ciberInteligencia.get_user_followers(target_user, 20)
@@ -134,7 +168,7 @@ def load_funcional_menu(model):
             results = ciberInteligencia.analize_dataset(model, user_path)
             utility.print_results(results, user_path)
     elif choice == 2:
-        print "Ayuda"
+        print "Info sobre el modelo"
 
 
 # Exit program
@@ -161,7 +195,10 @@ if __name__ == "__main__":
         else:
             print "Datos de acceso incorrectos, hasta pronto!"
     elif choice == 2:
-        print "Under Construction!"
+        username = raw_input("Seleccione un nombre de usuario: ")
+        password = raw_input("Escriba su contraseña: ")
+        database.create_user(username, password)
+        print_main_menu(username)
     elif choice == 3:
         print "See you!"
     else:
