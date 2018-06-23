@@ -525,7 +525,7 @@ try:
     #args = parser.parse_args()
 
     #print args.inputFile
-    #print args.outputFile
+   #print args.outputFile
 
     #Hacemos login en la API de Twitter
     api = login()
@@ -538,6 +538,7 @@ try:
     # Por el contrario, si le pasamos false calcula el numero de tweets que tienen algun hashtag
     # Hay que tener en cuenta que las respuestas a un tweet tambien las considera como ULR's porque son enlaces al propio Tweeter
     #filter_profiles(args.inputFile, args.outputFile, 100, True, True, True)
+    #ifilter_profiles_input_filestream(args.inputFile, args.outputFile, 100, True, True, True)
 
     #data = utility.prepareDataset('../Training_Data/secondDataset.csv', 'a_id')
     #X = data.drop('isabot', axis=1)
@@ -547,12 +548,12 @@ try:
     #Modelo de Arbol de decision
     #model = tree.DecisionTreeClassifier()
     #model.fit(X, y)
-    #utility.makeItPersistent(model, 'Decision_Tree_Entrenamiento-3')
-    #model = utility.loadModel('Random_Forest_Entrenamiento-2')
+    #utility.makeItPersistent(model, 'Decision_Tree_Entrenamiento_Bueno')
+    #model = utility.loadModel('Random_Forest_Regular')
     #Modelo de Random Forest
     #model = RandomForestClassifier()
     #model.fit(X, y)
-    #utility.makeItPersistent(model, 'Random_Forest_Entrenamiento-3')
+    #utility.makeItPersistent(model, 'Random_Forest_Entrenamiento_Bueno')
     #Modelo de SVM
     #model = svm.SVC()
     #model.fit(X_train, y_train)

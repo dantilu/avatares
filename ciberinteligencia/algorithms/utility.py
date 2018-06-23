@@ -33,14 +33,6 @@ def prepareDataset(csvFile, indexCol, type):
         (lambda x: time.mktime(datetime.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timetuple()))
     return data
 
-#Esta funcion devuelve una tabla imprimible con los valores de precision, recall y F1 del algoritmo
-def calculeClasifficationReport(trueValues, predictedValues):
-    #accurancy = accuracy_score(trueValues, predictedValues)
-    #recall = recall_score(trueValues, predictedValues)
-    #f1 = f1_score(trueValues, predictedValues)
-    #precision  = precision_score(trueValues, predictedValues)
-    return metrics.classification_report(trueValues, predictedValues, target_names=targetNames)
-
 #Funcion que genera el fichero donde se almacena el modelo para recuperarlo en caso de que sea necesario
 def makeItPersistent(model, fileName):
     #Generamos la ruta donde se almacenara
@@ -77,6 +69,16 @@ def howIsTheFit(trueValuesFit, predictedValuesFit, predictedValues, trueValues, 
 
     else:
         return 'The model looks OK, check the classification report for more information'
+
+#Calcula las metricas basicas del modelo F1, accurancy y recall
+def calcule_metrics(model):
+    data = prepareDataset('../Training_Data/finalDataset.csv', indexCol='a_id', type="Train")
+    X = data.drop('isabot', axis=1)
+    y = data['isabot']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
+    prediction = model.predict(X_test)
+    return metrics.classification_report(y_test, prediction)
+
 
 #Definimos el comando ls para listar los archivos de un directorio
 def ls(ruta = '.'):

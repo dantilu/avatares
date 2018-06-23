@@ -96,7 +96,7 @@ def load_generate_menu():
         print str(i) + '. ' + opcion
         i += 1
     dataset_choice = input("Enter you choice [1-" + str(i-1) + ']: ')
-    dataset_name = avaiable_datasets[dataset_choice]
+    dataset_name = avaiable_datasets[dataset_choice-1]
     while(dataset_choice not in list(range(i)) or dataset_choice == 0):
         print '\n', "¡El dataset seleccionado no es valido!"
         print "Seleccione un dataset de la lista"
@@ -104,7 +104,7 @@ def load_generate_menu():
         dataset_name = avaiable_datasets[dataset_choice]
         print dataset_name
     model = utility.generateModel(algoritm_choice, dataset_name)
-    load_funcional_menu(model)
+    load_funcional_menu(model, 1)
 
 
 #Load model submenu
@@ -132,15 +132,19 @@ def load_model_menu():
                 model = utility.loadModel(avaiable_models[x])
                 print '\n', 'Modelo:', avaiable_models[x], 'cargado correctamente'
                 break
-        load_funcional_menu(model)
+        load_funcional_menu(model, 0)
 
 
-def load_funcional_menu(model):
+def load_funcional_menu(model, newModel):
     pyautogui.hotkey('command', 'i')
     print 10 * "-", "Ciberinteligencia de avatares", 10 * "-"
     print "1. Análizar seguidores de un usuario"
     print "2. Información sobre el modelo"
-    choice = input("Enter your choice [1-2]: ")
+    if newModel == 1:
+        print "3. Guardar el modelo"
+        choice = input("Enter your choice [1-3]: ")
+    else:
+        choice = input("Enter your choice [1-2]: ")
     if choice == 1:
         print "Introduzca el nombre del usuario a análizar"
         target_user = raw_input(">>")
@@ -153,7 +157,7 @@ def load_funcional_menu(model):
             pyautogui.hotkey('command', 'i')
             if choice == 's':
                 print "Analizando seguidores de", target_user, '\n', "Esto podría tardar un rato..."
-                followers = ciberInteligencia.get_user_followers(target_user, 20)
+                followers = ciberInteligencia.get_user_followers(target_user, 200)
                 ciberInteligencia.filter_profiles(followers, '../datasets/' + target_user + '.csv', 100, True, True, True)
                 results = ciberInteligencia.analize_dataset(model, user_path)
                 utility.print_results(results, user_path)
@@ -168,8 +172,15 @@ def load_funcional_menu(model):
             results = ciberInteligencia.analize_dataset(model, user_path)
             utility.print_results(results, user_path)
     elif choice == 2:
-        print "Info sobre el modelo"
+        print "Info sobre el modelo:"
+        print utility.calcule_metrics(model)
 
+    elif choice == 3 and newModel == 1:
+        print "Intruduzca el nombre con el que se guardará el modelo"
+        model_name = raw_input(">>")
+        utility.makeItPersistent(model, model_name)
+        print "El modelo se ha guardado correctamente"
+        load_funcional_menu(model, 0)
 
 # Exit program
 def exit():
