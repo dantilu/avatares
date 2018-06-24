@@ -533,7 +533,8 @@ try:
     # Por el contrario, si le pasamos false calcula el numero de tweets que tienen algun hashtag
     # Hay que tener en cuenta que las respuestas a un tweet tambien las considera como ULR's porque son enlaces al propio Tweeter
     #filter_profiles(args.inputFile, args.outputFile, 100, True, True, True)
-    filter_profiles_input_filestream('../Training_Data/info/Todos.txt', 'salida400_4.txt', 100, True, True, True)
+    #filter_profiles_input_filestream('../Training_Data/info/Todos.txt', 'salida400_4.txt', 100, True, True, True)
+
 
     #data = utility.prepareDataset('../Training_Data/secondDataset.csv', 'a_id')
     #X = data.drop('isabot', axis=1)

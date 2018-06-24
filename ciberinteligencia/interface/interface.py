@@ -103,8 +103,8 @@ def load_generate_menu():
         dataset_choice = input("Enter you choice [1-" + str(i - 1) + ']: ')
         dataset_name = avaiable_datasets[dataset_choice]
         print dataset_name
-    model = utility.generateModel(algoritm_choice, dataset_name)
-    load_funcional_menu(model, 1)
+    model, metrics = utility.generateModel(algoritm_choice, dataset_name)
+    load_funcional_menu(model, 1, metrics)
 
 
 #Load model submenu
@@ -132,17 +132,21 @@ def load_model_menu():
                 model = utility.loadModel(avaiable_models[x])
                 print '\n', 'Modelo:', avaiable_models[x], 'cargado correctamente'
                 break
-        load_funcional_menu(model, 0)
+        load_funcional_menu(model, 0, metrics=None)
 
 
-def load_funcional_menu(model, newModel):
+def load_funcional_menu(model, newModel, metrics):
     pyautogui.hotkey('command', 'i')
     print 10 * "-", "Ciberinteligencia de avatares", 10 * "-"
     print "1. Análizar seguidores de un usuario"
     print "2. Información sobre el modelo"
     if newModel == 1:
         print "3. Guardar el modelo"
+        print '\n','Las metricas para el modelo generado son:'
+        print metrics
         choice = input("Enter your choice [1-3]: ")
+
+        print metrics
     else:
         choice = input("Enter your choice [1-2]: ")
     if choice == 1:
@@ -180,7 +184,7 @@ def load_funcional_menu(model, newModel):
         model_name = raw_input(">>")
         utility.makeItPersistent(model, model_name)
         print "El modelo se ha guardado correctamente"
-        load_funcional_menu(model, 0)
+        load_funcional_menu(model, 0, metrics=None)
 
 # Exit program
 def exit():

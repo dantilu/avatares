@@ -9,6 +9,7 @@ from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import svm
 from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
 
 #Global, con los nombres de las clases en las que clasificamos
 targetNames = ['Humano', 'Bot']
@@ -23,15 +24,31 @@ def prepareDataset(csvFile, indexCol, type):
         # Pasamos el CSV a un dataframe
         data = pd.read_csv(csvFile, index_col=indexCol)
         data = data.drop('name', axis=1)
+        print 'Quitando el nombre'
     elif type == "Train":
         # Pasamos el CSV a un dataframe
         data = pd.read_csv(csvFile, index_col=indexCol)
+        data = data.drop('name', axis=1)
     #Eliminando las lineas a las que les falta alguno de los valores que utilizamos
     data.dropna(how='any', inplace=True)
     #Pasamos la fecha a formato TimeStamp
     data['creation_date'] = data['creation_date'].apply\
         (lambda x: time.mktime(datetime.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timetuple()))
+
     return data
+
+
+def normalizeData(input_data):
+
+    for x in list(input_data) not in ['default_profile', 'default_profile_image', 'location', 'verified']:
+        col = input_data[[x]].values.astype(float)
+        min_max_scaler = preprocessing.MinMaxScaler()
+        # Create an object to transform the data to fit minmax processor
+        x_scaled = min_max_scaler.fit_transform(col)
+        input_data[x] = x_scaled
+
+    return input_data
+
 
 #Funcion que genera el fichero donde se almacena el modelo para recuperarlo en caso de que sea necesario
 def makeItPersistent(model, fileName):
@@ -72,7 +89,7 @@ def howIsTheFit(trueValuesFit, predictedValuesFit, predictedValues, trueValues, 
 
 #Calcula las metricas basicas del modelo F1, accurancy y recall
 def calcule_metrics(model):
-    data = prepareDataset('../Training_Data/finalDataset.csv', indexCol='a_id', type="Train")
+    data = prepareDataset('../Training_Data/set_prueba.csv', indexCol='a_id', type="Train")
     X = data.drop('isabot', axis=1)
     y = data['isabot']
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
@@ -106,11 +123,12 @@ def generateModel(model_choice, training_dataset):
     if model_choice == 1:
         model = tree.DecisionTreeClassifier()
     elif model_choice == 2:
-        model = RandomForestClassifier()
+        model = RandomForestClassifier(n_estimators=20)
     elif model_choice == 3:
         model = svm.SVC()
     model.fit(X_train, y_train)
+    prediction = model.predict(X_test)
     print "Nuevo modelo generado!"
-    return model
+    return model, metrics.classification_report(y_test, prediction)
 
 
