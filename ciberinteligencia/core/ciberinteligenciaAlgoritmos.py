@@ -29,10 +29,6 @@ from collections import defaultdict
 from textblob import TextBlob
 from textstat.textstat import textstat
 
-
-DEBUG_MODE = 1
-
-
 class UserRead:
     #Solo se definen campos comunes como variables aqui, lo demas va en los diferentes métodos
     #Inicializamos todas las variables que vayamos a usar en la clase
@@ -197,10 +193,9 @@ def login2():
     return tweepy.API(auth)
 
 
-
 def check_profile(profile, usuario):
     try:
-        api = login()
+        api = login2()
         user_name = profile.split('	')
         print user_name
         perfil = api.get_user(user_name[0])
@@ -326,7 +321,7 @@ def profile_based_characteristics(usuario):
 
 def content_based_characteristics(usuario, limitador, flag_hashtag, flag_url, flag_mention):
         try:
-            api = login()
+            api = login2()
             created_at_list = {}
             usuario.user_timeline = api.user_timeline(usuario.name)
             user = usuario.user_timeline
@@ -528,17 +523,17 @@ try:
    #print args.outputFile
 
     #Hacemos login en la API de Twitter
-    api = login()
+    #api = login()
     usuario = UserRead()
     #print api.rate_limit_status()
     #get_followers(api, "Ford", 2)
-    api = login()
+    api = login2()
     #Creamos fichero de salida
     # Si se le pasa true como tercer parametro calcula el numero total de hashtags
     # Por el contrario, si le pasamos false calcula el numero de tweets que tienen algun hashtag
     # Hay que tener en cuenta que las respuestas a un tweet tambien las considera como ULR's porque son enlaces al propio Tweeter
     #filter_profiles(args.inputFile, args.outputFile, 100, True, True, True)
-    #ifilter_profiles_input_filestream(args.inputFile, args.outputFile, 100, True, True, True)
+    filter_profiles_input_filestream('../Training_Data/info/Todos.txt', 'salida400_4.txt', 100, True, True, True)
 
     #data = utility.prepareDataset('../Training_Data/secondDataset.csv', 'a_id')
     #X = data.drop('isabot', axis=1)
