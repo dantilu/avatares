@@ -11,11 +11,9 @@ Created on Tue Mar 27 18:43:55 2018
 import sys
 import os
 import time
-#import msvcrt
 import getpass
 import ciberinteligencia.algorithms.utility as utility
 import ciberinteligencia.database.databaseConnector as database
-import ciberinteligencia.core as core
 import pyautogui
 import ciberinteligencia.core.ciberinteligenciaAlgoritmos as ciberInteligencia
 
@@ -34,7 +32,6 @@ def show_login():
         print "Introduzca los datos de acceso por favor:"
         name = raw_input(" >> User:  ")
         pswd = getpass.getpass("Enter the password: ")
-        print pswd
         if database.check_password(name, pswd):
             return name
         else:

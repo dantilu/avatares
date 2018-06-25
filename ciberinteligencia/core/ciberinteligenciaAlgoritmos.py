@@ -113,7 +113,12 @@ class UserRead:
         try:
             params = self.__dict__
             values = ''
-            params2 = (param for param in sorted(list(params.keys())) if param not in ['profile', 'user_timeline', 'friends_count', 'followers_count'])
+            params2 = (param for param in sorted(list(params.keys())) if param not in ['profile', 'user_timeline',
+                                                                                        'friends_count',
+                                                                                       'followers_count',
+                                                                                       'percent_positive_tweets',
+                                                                                       'percent_negative_tweets',
+                                                                                       'percent_neutral_tweets'])
             for param in params2:
                 values += str(params[param]) + ','
             values = values[:len(values)-1] + '\n'
