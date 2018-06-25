@@ -289,6 +289,11 @@ def profile_based_characteristics(usuario):
             usuario.name_numbers_amount = len(numeric_chars.group())
         else:
             usuario.name_numbers_amount = 0
+
+        if usuario.name_length != 0:
+            usuario.name_letters_amount = usuario.name_letters_amount / usuario.name_length
+            usuario.name_numbers_amount = usuario.name_numbers_amount / usuario.name_length
+
         usuario.a_id = user.id_str
         if user.location is not None:
             usuario.location = True
@@ -406,9 +411,12 @@ def content_based_characteristics(usuario, limitador, flag_hashtag, flag_url, fl
             usuario.average_number_words_per_tweet = awpt
             usuario.smog_index = textstat.smog_index(smog_text)
             usuario.number_of_tweets = number_of_tweets
-            usuario.number_of_hashtags = total_number_of_hashtags
-            usuario.number_of_urls = total_number_of_urls
-            usuario.number_of_mentions = total_number_of_mentions
+
+            if number_of_tweets != 0:
+                usuario.number_of_hashtags = total_number_of_hashtags / number_of_tweets
+                usuario.number_of_urls = total_number_of_urls / number_of_tweets
+                usuario.number_of_mentions = total_number_of_mentions / number_of_tweets
+
             usuario.last_24_hours_tweet = last_24_hours_tweet
             usuario.average_time_between_tweets = calculate_average_time_between_tweets(created_at_list)
             return True
