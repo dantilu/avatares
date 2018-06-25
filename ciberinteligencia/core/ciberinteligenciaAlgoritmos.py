@@ -132,7 +132,8 @@ class UserRead:
         objectparams = self.__dict__
         firstLine = ''
         paramNames = (param for param in sorted(list(objectparams.keys())) if
-                   param not in ['profile', 'user_timeline', 'friends_count', 'followers_count'])
+                   param not in ['profile', 'user_timeline', 'friends_count', 'followers_count',
+                                 'percent_positive_tweets', 'percent_negative_tweets', 'percent_neutral_tweets'])
         for name in paramNames:
             firstLine += str(name) + ','
 
@@ -517,7 +518,6 @@ def analize_sentiment(tweet):
         return 0
     else:
         return -1
-
 
 
 def analize_dataset(model, dataset):
