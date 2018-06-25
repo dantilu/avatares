@@ -405,8 +405,10 @@ def content_based_characteristics(usuario, limitador, flag_hashtag, flag_url, fl
             lexical_diversity += 1.0 * tuw / tw
             awpt = 1.0 * tuw / line_counter
 
-            usuario.total_number_of_words = tw
-            usuario.total_unique_words = tuw
+            if tw != 0:
+                usuario.total_number_of_words = tw
+                usuario.total_unique_words = tuw/tw
+
             usuario.lexical_diversity = lexical_diversity
             usuario.average_number_words_per_tweet = awpt
             usuario.smog_index = textstat.smog_index(smog_text)
