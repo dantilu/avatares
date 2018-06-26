@@ -102,20 +102,20 @@ def load_generate_menu():
         dataset_name = avaiable_datasets[dataset_choice]
         print dataset_name
     model, metrics = utility.generateModel(algoritm_choice, dataset_name)
-    dot_data = tree.export_graphviz(model, out_file=None,
-                                    feature_names=['average_lenth_from_tweets','average_number_words_per_tweet',
-                                                   'average_time_between_tweets','creation_content_sources','creation_date',
-                                                   'default_profile','default_profile_image','desviacion_tipica_average_tweet_time',
-                                                   'last_24_hours_tweet','lexical_diversity','location','name_length',
-                                                   'name_letters_amount','name_numbers_amount','number_of_hashtags','number_of_mentions',
-                                                   'number_of_urls','ratio_friends_followers','smog_index',
-                                                   'total_number_of_words','total_unique_words','verified'],
-                                    class_names=utility.targetNames,
-                                    filled=True, rounded=True,
-                                    special_characters=True)
-    graph = graphviz.Source(dot_data)
-    graph.render("Tree")
-    #load_funcional_menu(model, 1, metrics)
+    #dot_data = tree.export_graphviz(model, out_file=None,
+    #                                feature_names=['average_lenth_from_tweets','average_number_words_per_tweet',
+    #                                               'average_time_between_tweets','creation_content_sources','creation_date',
+    #                                               'default_profile','default_profile_image','desviacion_tipica_average_tweet_time',
+    #                                               'last_24_hours_tweet','lexical_diversity','location','name_length',
+    #                                               'name_letters_amount','name_numbers_amount','number_of_hashtags','number_of_mentions',
+    #                                               'number_of_urls','ratio_friends_followers','smog_index',
+    #                                               'total_number_of_words','total_unique_words','verified'],
+    #                                class_names=utility.targetNames,
+    #                                filled=True, rounded=True,
+    #                                special_characters=True)
+    #graph = graphviz.Source(dot_data)
+    #graph.render("Tree")
+    load_funcional_menu(model, 1, metrics)
 
 
 #Load model submenu
@@ -172,8 +172,8 @@ def load_funcional_menu(model, newModel, metrics):
             pyautogui.hotkey('command', 'i')
             if choice == 's':
                 print "Analizando seguidores de", target_user, '\n', "Esto podría tardar un rato..."
-                followers = ciberInteligencia.get_user_followers(target_user, 200)
-                ciberInteligencia.filter_profiles(followers, '../datasets/' + target_user + '.csv', 100, True, True, True)
+                followers = ciberInteligencia.get_user_followers(target_user, 40)
+                ciberInteligencia.filter_profiles(followers, '../datasets/' + target_user + '.csv', 40, True, True, True)
                 results = ciberInteligencia.analize_dataset(model, user_path)
                 utility.print_results(results, user_path)
             elif choice == 'n':
@@ -182,8 +182,8 @@ def load_funcional_menu(model, newModel, metrics):
                 utility.print_results(results, user_path)
         else:
             print "Analizando seguidores de", target_user, '\n', "Esto podría tardar un rato..."
-            followers = ciberInteligencia.get_user_followers(target_user, 200)
-            ciberInteligencia.filter_profiles(followers, '../datasets/' + target_user + '.csv', 100, True, True, True)
+            followers = ciberInteligencia.get_user_followers(target_user, 40)
+            ciberInteligencia.filter_profiles(followers, '../datasets/' + target_user + '.csv', 40, True, True, True)
             results = ciberInteligencia.analize_dataset(model, user_path)
             utility.print_results(results, user_path)
     elif choice == 2:
