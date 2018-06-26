@@ -24,11 +24,13 @@ def prepareDataset(csvFile, indexCol, type):
         # Pasamos el CSV a un dataframe
         data = pd.read_csv(csvFile, index_col=indexCol)
         data = data.drop('name', axis=1)
+        data = data.drop('number_of_tweets', axis=1)
         print 'Quitando el nombre'
     elif type == "Train":
         # Pasamos el CSV a un dataframe
         data = pd.read_csv(csvFile, index_col=indexCol)
         data = data.drop('name', axis=1)
+        data = data.drop('number_of_tweets', axis=1)
     #Eliminando las lineas a las que les falta alguno de los valores que utilizamos
     data.dropna(how='any', inplace=True)
     #Pasamos la fecha a formato TimeStamp
@@ -121,11 +123,20 @@ def generateModel(model_choice, training_dataset):
     y = dataset['isabot']
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
     if model_choice == 1:
-        model = tree.DecisionTreeClassifier()
+        model = tree.DecisionTreeClassifier(criterion='gini', splitter='best', max_depth=None, min_samples_split=2,
+                                            min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features=None,
+                                            random_state=None, max_leaf_nodes=None, min_impurity_decrease=0.0,
+                                            min_impurity_split=None, class_weight=None, presort=False)
     elif model_choice == 2:
-        model = RandomForestClassifier(n_estimators=20)
+        model = RandomForestClassifier(n_estimators=10, criterion='gini', max_depth=None, min_samples_split=2,
+                                       min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto',
+                                       max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None,
+                                       bootstrap=True, oob_score=False, n_jobs=1, random_state=None, verbose=0,
+                                       warm_start=False, class_weight=None)
     elif model_choice == 3:
-        model = svm.SVC()
+        model = svm.SVC(C=1.0, kernel='rbf', degree=3, gamma='auto', coef0=0.0, shrinking=True, probability=False,
+                        tol=0.001, cache_size=200, class_weight=None, verbose=False, max_iter=-1,
+                        decision_function_shape='ovr', random_state=None)
     model.fit(X_train, y_train)
     prediction = model.predict(X_test)
     print "Nuevo modelo generado!"
